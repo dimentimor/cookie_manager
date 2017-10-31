@@ -34,8 +34,8 @@
 var App = App || {};
 (function (app, config) {
 	
-    // стандартные методы
     var def = {
+	// стандартные методы
         getCookie: function (name) {
             var matches = document.cookie.match(new RegExp("(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"));
             return matches ? decodeURIComponent(matches[1]) : false;
@@ -60,6 +60,7 @@ var App = App || {};
         }
     };
 
+	
     if (config.proxyble) {
         // если вклено проксирование
 
@@ -105,6 +106,7 @@ var App = App || {};
             }
         };
 
+	    
         app[config.name] = new Proxy(cookie, {
             get(target, term) {
                 // если это метод - вернуть его 
