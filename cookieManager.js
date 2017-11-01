@@ -2,40 +2,11 @@
 // CookieManager
 // -------------------------------------------------------------
 
-/*
-    var cookie = app.cookie; // {object}
-
-    // доступ к значениям
-    cookie.foo = 'bar';   // set
-    cookie.foo;           // get
-    delete cookie.foo;    // del
-
-    // Приводит cookie к соответствующему типу
-    cookie.toString();    // стандартная строка cookie
-    cookie.toObject();    // объект (чистый, без прокси)
-    cookie.toArray();     // массив массивов.[[key, val], ...]
-    cookie.toJson();      // json
-
-    // Поиск ключей по регулярному выражению
-    cookie.search(/name/);  // {object}
-
-    // Форматирует строку, расставляя символы 
-    // до ключа, между ключем и значением, и после значения
-    cookie.format('[', ':', ']');
-
-    // проверка на вхождение
-    'foo' in cookie;    
-
-    // итерируются как объект
-    for (var i in cookie) { cookie[i] };
-*/
-
-// -------------------------------------------------------------
 var App = App || {};
 (function (app, config) {
 	
     var def = {
-	// стандартные методы
+	// стандартные методы (с просторов интернета)
         getCookie: function (name) {
             var matches = document.cookie.match(new RegExp("(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"));
             return matches ? decodeURIComponent(matches[1]) : false;
@@ -135,7 +106,7 @@ var App = App || {};
 
     } else {
         // если вЫклено проксирование
-        // вернуть стандартный набор функций
+        // вернуть стандартный набор методов
         app[config.name] = def;
     }
 
@@ -152,3 +123,31 @@ var App = App || {};
 });
 
 
+
+/*
+    var cookie = app.cookie; // {object}
+
+    // доступ к значениям
+    cookie.foo = 'bar';   // set
+    cookie.foo;           // get
+    delete cookie.foo;    // del
+
+    // Приводит cookie к соответствующему типу
+    cookie.toString();    // стандартная строка cookie
+    cookie.toObject();    // объект (чистый, без прокси)
+    cookie.toArray();     // массив массивов.[[key, val], ...]
+    cookie.toJson();      // json
+
+    // Поиск ключей по регулярному выражению
+    cookie.search(/name/);  // {object}
+
+    // Форматирует строку, расставляя символы 
+    // до ключа, между ключем и значением, и после значения
+    cookie.format('[', ':', ']');
+
+    // проверка вхождения
+    'foo' in cookie;    
+
+    // итерация
+    for (var i in cookie) { cookie[i] };
+*/
