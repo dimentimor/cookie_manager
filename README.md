@@ -4,19 +4,33 @@
 
 Подключение
     
-    <script src="cookieManager.js"></script>
+    // Объект для экспорта модуля
+    var App = App || {};
     
-Использование
     
-    var cookie = App.cookie; // {object}
+    // Файл cookieManager.js
+    (function (app, config) {
+        // Код модуля ...
+    
+    // Объект для экспорта (или window)
+    })(App, {
+    
+        // Настройки
+        name: 'coockie',        // Имя модуля в глобальном объекте
+        proxyble: true,         // Если false - будет возвращен стандартный набор методов
+    });
+    
+    
+    // Инициализация
+    var cookie = App.cookie;    // {object}
     
 Доступ к значениям
     
-    cookie.foo;            // get
-    cookie.foo = 'bar';    // set
-    delete cookie.foo;     // del
+    cookie.foo;            // получить
+    cookie.foo = 'bar';    // установить
+    delete cookie.foo;     // удалить
     
-Привести данные к типу
+Приведение к типу
 
     cookie.toString();     // стандартная строка cookie
     cookie.toObject();     // объект (чистый, без прокси)
@@ -31,10 +45,10 @@
 
     cookie.format('[', ':', ']');
     
-Проверка на вхождение
+Проверка вхождения
 
     'foo' in cookie;
     
-Итерируются как объект
+Итерация
 
     for (var i in cookie) { cookie[i] };
