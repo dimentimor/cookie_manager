@@ -1,153 +1,109 @@
 
-// CookieManager
-// -------------------------------------------------------------
+// Cookie Manager
+var Cookie = function (path = '/', time = '12M') {
 
-var App = App || {};
-(function (app, config) {
+	// Получить объект свойств 
+	var cookieObject = getObject(true);
+
+	// Проксирование доступа к свойствам объекта
+	var cookieProxy = new Proxy(cookieObject, {
+
+		get(target, term) {
+			var item = getItem(term); 
+			if (item) return item;
+			return console.log(`No cookie: ${term}`), null;
+		},
+
+		set(target, term, value) {
+			setItem(term, value);
+			target[term] = value;
+			return true;
+		},
+
+		deleteProperty(target, term) {
+			delItem(term);
+			delete target[term];
+			return true;
+		}
+	});
+
+	return cookieProxy;
+	// -----------------------------------
+
+
+	// получить объект из строки cookie
+	function getObject(isExt = false) {
+		var obj = {};
+
+		// расширить прототип cookieObject
+		// по умолчанию метод возвращает объект с "чистым" прототипом
+		if (isExt) {
+			Object.setPrototypeOf(obj, {
+
+				getObject: 	getObject, 		
+				getItem: 	getItem, 		
+				setItem: 	setItem, 		
+				delItem: 	delItem, 		
+				search: 	search, 		
+			});
+		}
+
+		document.cookie.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1')
+			.split('; ')
+			.forEach((item) => {
+
+				var [key, val] = item.split('=');
+				obj[key] = decodeURIComponent(val);
+			});
+
+		return obj;
+	}
+
 	
-    var def = {
-	// стандартные методы (с просторов интернета)
-        getCookie: function (name) {
-            var matches = document.cookie.match(new RegExp("(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"));
-            return matches ? decodeURIComponent(matches[1]) : false;
-        },
-        setCookie: function (name, val) {
-            var date = new Date(new Date().getTime() +360 * 24 * 60 * 60 * 1000);
-            document.cookie = name+"="+val+"; path=/; expires=" + date.toUTCString();
-        },
-        delCookie: function (name) {
-            var date = new Date(new Date().getTime() -100);
-            document.cookie = name+'=""; path=/; expires=' + date.toUTCString();
-        },
-        toObject: function () {
-            var items = {};
-            var arr = document.cookie.split('; ');
+	// получить значение
+	function getItem(key) {
+		return key in cookieObject ? cookieObject[key] : null;
+	}
 
-            for (var i = 0; i < arr.length; i++) {
-                var curent = arr[i].split('=');
-                items[curent[0]] = curent[1];
-            }
-            return items;
-        }
-    };
+	// установить значение
+	function setItem(key, val) {
+		var _time = timeParser(time);
+		var _val = encodeURIComponent(val);
+		document.cookie = `${key}=${_val}; path=${path}; expires=${_time}`;
+	}
 
-	
-    if (config.proxyble) {
-        // если вклено проксирование
+	// удалить свойство
+	function delItem(key) {
+		var _time = timeParser(-1);
+		document.cookie = `${key}=; path=; expires=${_time}`;
+	}
 
-        var cookie = def.toObject();
-        var methods = {
+	// Поиск имён свойств по регулярному выражению
+	function search(regExp) {
+		var res = {};
+		Object.keys(cookieObject).forEach((e) => {
 
-            toString: function () {
-                return document.cookie;
-            },
-            toObject: function () {
-                var obj = {};
-                Object.assign(obj, cookie);
-                return obj;
-            }, 
-            toArray: function () {
-                var arr = [];
-                Object.keys(cookie).forEach(function(e) {
-                    arr.push([e, cookie[e]]);
-                });
-                return arr;
-            }, 
-            toJson: function (format=false) {
-                return JSON.stringify(this.toObject());
-            },
-            format: function (before='', delim=':', after=';') {
-                // Возвращает форматированную строку.
-                var obj = this.toObject();
-                var res = '';
-                for (var i in obj) res += before+i+delim+obj[i]+after;
-                return res;
-            },
-            search: function (regExp) {
-                // Производит поиск имён свойств по регулярному выражению
-                // Возвращает объект найденных пар
-                var res = {};
-                Object.keys(cookie).forEach(function(e) {
-                    var f = e.match(regExp);
-                    if (f !== null) {
-                        res[f.input] = cookie[f.input];
-                    }
-                });
-                return res;
-            }
-        };
+			var f = e.match(regExp);
+			if (f !== null) res[f.input] = cookieObject[f.input];
+		});
+		return res;
+	}
 
-	    
-        app[config.name] = new Proxy(cookie, {
-            get(target, term) {
-                // если это метод - вернуть его 
-                if (term in methods) {
-                    return methods[term]; 
-                }
-                // если есть такие сookie - вернуть их 
-                var item = def.getCookie(term);
-                if (item) { 
-                    return item;
-                }
-                // если ничего из вышеперечисленного - вернуть false
-                return console.log(`No cookie: ${term}`), false;
-            },
-            set(target, term, value) {
-                def.setCookie(term, value);
-                target[term] = value;
-                return true;
-            },
-            deleteProperty(target, term) {
-                def.delCookie(term);
-                delete target[term];
-                return true;
-            }
-        });
+	// парсинг аргумента time
+	function timeParser(time) {
+		if (time === -1) {
+			return new Date(new Date().getTime() - 100).toUTCString();
+		}
+		var arr = time.match(/(\d*)(\w*)/);
+		var def = {
+			's': 1000,
+			'm': 60000,
+			'h': 60000 * 60,
+			'D': 60000 * 60 * 24,
+			'M': 60000 * 60 * 24 * 365,
+		};
+		var date = new Date().getTime() + arr[1] * def[arr[2]];
+		return new Date(date).toUTCString();
+	}
 
-    } else {
-        // если вЫклено проксирование
-        // вернуть стандартный набор методов
-        app[config.name] = def;
-    }
-
-    config.ready();
-
-})(App, {
-
-    name: 'cookie',
-    // если proxyble: false - будет возвращен стандартный набор методов
-    proxyble: true,  
-    ready: function () {
-        console.log('cookie::ready');
-    }
-});
-
-
-
-/*
-    var cookie = app.cookie; // {object}
-
-    // доступ к значениям
-    cookie.foo = 'bar';   // set
-    cookie.foo;           // get
-    delete cookie.foo;    // del
-
-    // Приводит cookie к соответствующему типу
-    cookie.toString();    // стандартная строка cookie
-    cookie.toObject();    // объект (чистый, без прокси)
-    cookie.toArray();     // массив массивов.[[key, val], ...]
-    cookie.toJson();      // json
-
-    // Поиск ключей по регулярному выражению
-    cookie.search(/name/);  // {object}
-
-    // Форматирует строку, расставляя символы 
-    // до ключа, между ключем и значением, и после значения
-    cookie.format('[', ':', ']');
-
-    // проверка вхождения
-    'foo' in cookie;    
-
-    // итерация
-    for (var i in cookie) { cookie[i] };
-*/
+};
