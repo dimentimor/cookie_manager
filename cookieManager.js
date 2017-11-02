@@ -2,12 +2,11 @@
 // Cookie Manager
 var Cookie = function (path = '/', time = '12M') {
 
-	// Получить объект свойств 
 	var cookieObject = getObject(true);
 
 	// Проксирование доступа к свойствам объекта
 	var cookieProxy = new Proxy(cookieObject, {
-
+		
 		get(target, term) {
 			var item = getItem(term); 
 			if (item) return item;
@@ -28,7 +27,7 @@ var Cookie = function (path = '/', time = '12M') {
 	});
 
 	return cookieProxy;
-	// -----------------------------------
+	
 
 
 	// получить объект из строки cookie
@@ -59,20 +58,16 @@ var Cookie = function (path = '/', time = '12M') {
 		return obj;
 	}
 
-	
-	// получить значение
 	function getItem(key) {
 		return key in cookieObject ? cookieObject[key] : null;
 	}
 
-	// установить значение
 	function setItem(key, val) {
 		var _time = timeParser(time);
 		var _val = encodeURIComponent(val);
 		document.cookie = `${key}=${_val}; path=${path}; expires=${_time}`;
 	}
 
-	// удалить свойство
 	function delItem(key) {
 		var _time = timeParser(-1);
 		document.cookie = `${key}=; path=; expires=${_time}`;
@@ -105,5 +100,4 @@ var Cookie = function (path = '/', time = '12M') {
 		var date = new Date().getTime() + arr[1] * def[arr[2]];
 		return new Date(date).toUTCString();
 	}
-
 };
