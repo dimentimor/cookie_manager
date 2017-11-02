@@ -1,72 +1,47 @@
 ## Cookie Manager
 
-**Простой интерфейс для работы с Сookies**
+**Интерфейс предоставляет возможность работать с cookie как с объектом**
 
-Подключение
-    
-```javascript
-// Объект для экспорта модуля
-var App = App || {};
-
-
-// Файл cookieManager.js
-(function (app, config) {
-    // Код модуля ...
-
-// Объект для экспорта (или window)
-})(App, {
-
-    // Настройки
-    name: 'coockie',        // Имя модуля в глобальном объекте
-    proxyble: true,         // Если false - будет возвращен стандартный набор методов
-});
-
-
-// Использование
-var cookie = App.cookie;    // {object}
-```
-
-Доступ к значениям
-    
-```javascript
-cookie.foo;            // получить
-cookie.foo = 'bar';    // установить
-delete cookie.foo;     // удалить
-```
-
-Проверка вхождения
+Создание экземпляра
 
 ```javascript
-'foo' in cookie;
+var cookie = Cookie();
 ```
 
-Итерация
+Доступ к свойствам
 
 ```javascript
-for (var i in cookie) { cookie[i] };
+cookie.user                 // Чтение. Возвращает значение свойства user или null
+cookie.user = 'Jack'        // Установка. Возвращает установленное значение 'Jack'
+delete cookie.user          // Удаление. Возвращает true в случае успеха
+
+'foo' in cookie             // Проверка существования свойства
+for (var i in cookie) {};   // Итерация
 ```
 
-Приведение к типу
+Методы прототипа
 
 ```javascript
-cookie.toString();     // стандартная строка cookie
-cookie.toObject();     // объект (чистый, без прокси)
-cookie.toArray();      // массив массивов.[[key, val], ...]
-cookie.toJson();       // json
+cookie.getObject()                  // Парсит cookie строку и возвращает объект
+
+cookie.getItem('name')              // Чтение 
+cookie.setItem('name', 'Bob')       // Установка
+cookie.delItem('name')              // Удаление
+
+var obj = cookie.search(/^_.*/)     // Поиск имён свойств по регулярному выражению
+
 ```
-    
-Поиск ключей по регулярному выражению
+
+Время жизни указывается в формате "ЧислоБуква". Можно создавать несколько экземпляров объекта для разных путей и времён.
+
+    s - sec, m - min, h - hour, D - day, M - month
+
 
 ```javascript
-cookie.search(/name/);  // {object}
+var cookie = Cookie();              // По умолчанию: path - "/", expires - 12 месяцев
+
+var foo = Cookie('/foo', '14D');    // path - "/foo",   expires - "14 дней"
+var bar = Cookie('/bar', '8h');     // path - "/bar",   expires - 8 часов
+var bar = Cookie('/', '666m');      // path - "/",      expires - 666 минут
+
 ```
-    
-Форматирует строку, расставляя символы до ключа, между ключем и значением, и после значения
-
-```javascript
-cookie.format('[', ':', ']');
-```
-    
-
-    
-
